@@ -27,8 +27,8 @@ LOCAL_VOICE_MAPS_DIR     = "voice_maps"
 GCS_VOICE_MAPS_DIR       = "voice_maps"
 GCS_GENERATED_AUDIO_DIR  = "generated_audio"
 
-# Service-account JSON (set GOOGLE_APPLICATION_CREDENTIALS env-var or fall back)
-SERVICE_ACCOUNT_PATH = "var/secrets/google/proposals-creds.json"
+
+SERVICE_ACCOUNT_PATH = os.environ.get("service_acc.json", "var/secrets/google/proposals-creds.json")
 
 # ────────────────────────────────────────────────────────────────────────────────
 app = Flask(__name__)
