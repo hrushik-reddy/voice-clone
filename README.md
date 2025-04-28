@@ -1,4 +1,4 @@
-# Hrushik's Voice Cloning API
+# Voice Cloning using OuteTTS
 
 A Flask-based API for voice cloning and text-to-speech generation using the OuteTTS library.
 
