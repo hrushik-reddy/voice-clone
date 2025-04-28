@@ -1,107 +1,174 @@
-```markdown
-# 🎙️ Hrushik Voice-Clone
+# Hrushik's Voice Cloning API
 
-Light-weight Flask API for **cloning a speaker’s voice** from a short audio sample and generating new speech on-demand.  
-Powered by **[outetts](https://pypi.org/project/outetts)** for TTS and **Google Cloud Storage** for artifact hosting.
+A Flask-based API for voice cloning and text-to-speech generation using the OuteTTS library.
 
----
+> **IMPORTANT**: This application requires a GPU (NVIDIA L4 or greater recommended) for optimal performance. Voice cloning is computationally intensive and will be significantly slower without adequate GPU resources.
 
-## ✨ Features
-| Endpoint | Purpose |
-|----------|---------|
-| `POST /generate_voicemap` | Create & save a *voice map* (speaker embedding) from a signed-URL audio clip. |
-| `GET  /list_voice_maps`  | List all locally cached voice maps. |
-| `POST /generate_voice`   | Synthesize speech in a cloned voice for arbitrary text. |
+## Overview
 
-All routes return signed GCS URLs so you can fetch results securely for **30 minutes**.
+This project enables you to:
+- Generate voice maps from audio samples
+- List available voice maps
+- Generate speech using cloned voices with custom text
 
----
+The system uses Google Cloud Storage for storing voice maps and generated audio files, making them accessible via signed URLs.
 
-## 🗂️ Repo Layout
+## Directory Structure
+
 ```
-hrushik-reddy-voice-clone/
-├── api.py              # Flask app with three endpoints
-├── postman.json        # Ready-to-import requests for testing
-├── requirements.txt    # Python deps
-└── README.md           # You are here
+└── hrushik-reddy-voice-clone/
+    ├── README.md
+    ├── api.py
+    ├── postman.json
+    └── requirements.txt
 ```
 
----
+## Features
 
-## ⚙️ Quick-start
+- **Voice Map Generation**: Create voice fingerprints from audio samples
+- **Voice Cloning**: Generate speech with cloned voices using custom text
+- **Cloud Storage**: Store and retrieve voice maps and generated audio using Google Cloud Storage
+- **API Interface**: Easy-to-use REST API endpoints
 
-> **Prereqs:** Python 3.10+, ffmpeg (pydub), a GCP service account with GCS write access.
+## Requirements
+
+- Python 3.8+
+- NVIDIA GPU (L4 or greater recommended)
+- CUDA and cuDNN properly installed
+- Google Cloud credentials
+- OuteTTS library
+- Flask and additional dependencies (see `requirements.txt`)
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/hrushik-reddy/voice-clone.git
+cd hrushik-reddy-voice-clone
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Set up Google Cloud credentials:
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
+```
+   Alternatively, place your credentials file at `var/secrets/google/proposals-creds.json`
+
+4. Create necessary directories:
+```bash
+mkdir -p voice_maps
+```
+
+## Usage
+
+### Running the API Server
 
 ```bash
-# 1. Clone + install
-git clone https://github.com/<your-user>/hrushik-reddy-voice-clone.git
-cd hrushik-reddy-voice-clone
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-
-# 2. Export creds
-export GOOGLE_APPLICATION_CREDENTIALS=/abs/path/to/proposals-creds.json
-export FLASK_ENV=development               # optional
-
-# 3. Run API
-python api.py          # listens on 0.0.0.0:5000
+python api.py
 ```
 
----
+The server will start on http://0.0.0.0:5000
 
-## 🔑 Configuration
+### API Endpoints
 
-| Var | Default | Description |
-|-----|---------|-------------|
-| `PROJECT_ID`  | `680fa00bacc14688f44d5526` | GCP project id for Storage client |
-| `BUCKET_NAME` | `creative-workspace`       | GCS bucket for voice maps & audio |
-| `SERVICE_ACCOUNT_PATH` | `var/secrets/google/proposals-creds.json` | Fallback if env-var unset |
+#### 1. Generate Voice Map
 
-Edit these in **api.py** or override via environment variables.
+Create a voice map from an audio sample:
 
----
-
-## 🚀 Using the API
-
-### 1 · Generate a voice map
-```json
+```
 POST /generate_voicemap
-{
-  "signed_url": "https://storage.googleapis.com/<audio>.mp3",
-  "speaker_name": "peter_drucker"   // optional
-}
 ```
-Returns a signed `voice_map_url` and processing time.
 
-### 2 · List maps
-`GET /list_voice_maps`
-
-### 3 · Synthesize speech
+**Request Body**:
 ```json
-POST /generate_voice
 {
-  "speaker_name": "peter_drucker",
-  "text": "Hello, world!"
+  "signed_url": "https://storage.googleapis.com/your-audio-file.mp3",
+  "speaker_name": "custom_speaker_name"
 }
 ```
-Response JSON contains a time-limited `audio_url` (WAV).
 
-Import **postman.json** into Postman/Insomnia for ready-made requests.
-
----
-
-## 🏗️ How It Works
-1. **Audio → WAV (≤20 s)** via *pydub*  
-2. **outetts** extracts a speaker embedding and/or generates speech.  
-3. Artifacts are pushed to **GCS** and a signed URL is returned.  
-
----
-
-## 🤝 Contributing
-PRs are welcome! Please open an issue first to discuss major changes.
-
----
-
-## 📝 License
-MIT © 2025 Hrushik Reddy
+**Response**:
+```json
+{
+  "status": "success",
+  "speaker_name": "custom_speaker_name",
+  "voice_map_path": "voice_maps/custom_speaker_name_voice_map.json",
+  "voice_map_url": "https://storage.googleapis.com/...",
+  "time_taken": "2.45 s"
+}
 ```
+
+#### 2. List Voice Maps
+
+Get a list of all available voice maps:
+
+```
+GET /list_voice_maps
+```
+
+**Response**:
+```json
+{
+  "status": "success",
+  "voice_maps": [
+    {
+      "speaker_name": "custom_speaker_name",
+      "file_path": "voice_maps/custom_speaker_name_voice_map.json"
+    }
+  ]
+}
+```
+
+#### 3. Generate Voice
+
+Generate speech using a cloned voice:
+
+```
+POST /generate_voice
+```
+
+**Request Body**:
+```json
+{
+  "speaker_name": "custom_speaker_name",
+  "text": "Hello, this is a test of voice generation."
+}
+```
+
+**Response**:
+```json
+{
+  "status": "success",
+  "speaker_name": "custom_speaker_name",
+  "audio_url": "https://storage.googleapis.com/...",
+  "time_taken": "1.23 s"
+}
+```
+
+## Postman Collection
+
+A Postman collection is included in the repository (`postman.json`) to help you test the API endpoints. Import this collection into Postman to get started quickly.
+
+## Technical Details
+
+- **Audio Processing**: Uses PyDub to process and normalize audio files
+- **Voice Cloning**: Leverages OuteTTS for voice cloning and speech generation
+- **Storage**: Uses Google Cloud Storage for cloud-based file storage
+- **API Framework**: Built with Flask for lightweight API endpoints
+
+## Limitations
+
+- Audio samples are trimmed to 20 seconds for voice map generation
+- Requires proper Google Cloud credentials with access to the specified bucket
+
+## License
+
+[MIT License](LICENSE)
+
+## Author
+
+Hrushik Reddy
