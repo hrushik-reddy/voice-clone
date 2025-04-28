@@ -1,0 +1,100 @@
+{
+	"info": {
+		"_postman_id": "30f0d444-6b98-4eb1-b7e7-e2db1d7e15fe",
+		"name": "VOICE CLONING",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39815066"
+	},
+	"item": [
+		{
+			"name": "generate_voice_map",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"signed_url\": \"https://storage.googleapis.com/your-signed-url-to-audio-file.mp3\", \"speaker_name\": \"peter_drucker\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://wanted-goldfish-uniquely.ngrok-free.app//generate_voicemap",
+					"protocol": "https",
+					"host": [
+						"wanted-goldfish-uniquely",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"",
+						"generate_voicemap"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "list_available_voice_maps",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://wanted-goldfish-uniquely.ngrok-free.app//list_voice_maps",
+					"protocol": "https",
+					"host": [
+						"wanted-goldfish-uniquely",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"",
+						"list_voice_maps"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "generate_voice",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"speaker_name\": \"peter_drucker\", \"text\": \"Hello, I am Peter Drucker. This is a test of voice generation.\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://wanted-goldfish-uniquely.ngrok-free.app/generate_voice",
+					"protocol": "https",
+					"host": [
+						"wanted-goldfish-uniquely",
+						"ngrok-free",
+						"app"
+					],
+					"path": [
+						"generate_voice"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
